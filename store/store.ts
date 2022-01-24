@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import knittingReducer from "./knittingSlice";
+import canvasReducer from "./canvasSlice";
 
 const store = configureStore({
   reducer: {
     knitting: knittingReducer,
+    canvas: canvasReducer,
   },
 });
 

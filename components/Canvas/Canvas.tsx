@@ -73,8 +73,7 @@ const Canvas: React.FC = () => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
 
-    ctx.lineWidth = Math.ceil(Math.min(deltaWidth, deltaHeight) / 10);
-
+    ctx.lineWidth = 3;
     ctx.strokeStyle = "black";
     ctx.fillStyle = "white";
 

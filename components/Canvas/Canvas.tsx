@@ -1,4 +1,5 @@
-import { MouseEventHandler, useEffect, useRef } from "react";
+import React, { MouseEventHandler, useEffect, useRef } from "react";
+import { setPxPerCm } from "../../store/canvasSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   countFromDensity,
@@ -33,13 +34,12 @@ const Canvas: React.FC = () => {
 
   const dispatch = useAppDispatch();
 
-  const canvasOnClickHandler: MouseEventHandler<HTMLCanvasElement> = (
-    e: React.MouseEvent
+  const canvasOnClickHandler: React.MouseEventHandler<HTMLCanvasElement> = (
+    e
   ) => {
     e.preventDefault();
 
-    const sx = canvasContainerRef.current!.scrollLeft;
-    const sy = canvasContainerRef.current!.scrollTop;
+    const canvas = canvasContainerRef.current!;
 
     const deltaWidth = deltaInPxFromDensityInCm(
       knittingState.stitchDensity,
@@ -51,8 +51,8 @@ const Canvas: React.FC = () => {
     );
 
     const [xi, yi] = posToIndex(
-      e.clientX + sx,
-      e.clientY + sy,
+      e.clientX + canvas.scrollLeft - canvas.offsetLeft,
+      e.clientY + canvas.scrollTop - canvas.offsetTop,
       canvasState.height,
       canvasState.width,
       deltaHeight,

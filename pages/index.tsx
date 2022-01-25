@@ -1,5 +1,4 @@
 import Canvas from "../components/Canvas/Canvas";
-import { useRef } from "react";
 import { Provider } from "react-redux";
 import store from "../store/store";
 import Tools from "../components/Knitting/KnittingTools";

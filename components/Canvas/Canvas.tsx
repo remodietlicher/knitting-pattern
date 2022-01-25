@@ -26,6 +26,7 @@ const deltaInPxFromDensityInCm = (densityInCm: number, pxPerCm: number) => {
 
 const Canvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
 
   const canvasState = useAppSelector((state) => state.canvas);
   const knittingState = useAppSelector((state) => state.knitting);
@@ -37,6 +38,9 @@ const Canvas: React.FC = () => {
   ) => {
     e.preventDefault();
 
+    const sx = canvasContainerRef.current!.scrollLeft;
+    const sy = canvasContainerRef.current!.scrollTop;
+
     const deltaWidth = deltaInPxFromDensityInCm(
       knittingState.stitchDensity,
       canvasState.pxPerCm
@@ -47,8 +51,8 @@ const Canvas: React.FC = () => {
     );
 
     const [xi, yi] = posToIndex(
-      e.clientX,
-      e.clientY,
+      e.clientX + sx,
+      e.clientY + sy,
       canvasState.height,
       canvasState.width,
       deltaHeight,
@@ -104,8 +108,8 @@ const Canvas: React.FC = () => {
 
     ctx.beginPath();
     ctx.fillStyle = "black";
-    for (let x = 0; x < nx; x++) {
-      for (let y = 0; y < ny; y++) {
+    for (let y = 0; y < ny; y++) {
+      for (let x = 0; x < nx; x++) {
         if (knittingState.pattern[y][x])
           ctx.fillRect(
             x * deltaWidth,
@@ -118,7 +122,10 @@ const Canvas: React.FC = () => {
   }, [canvasState, knittingState]);
 
   return (
-    <div className="h-full w-full relative overflow-scroll">
+    <div
+      className="h-full w-full relative overflow-scroll"
+      ref={canvasContainerRef}
+    >
       <canvas
         className="absolute"
         height={canvasState.height}

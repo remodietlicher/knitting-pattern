@@ -2,8 +2,11 @@ import { setDimsCm, setPxPerCm } from "../../store/canvasSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   countFromDensity,
-  KnittingState,
-  setKnitting,
+  setKnittingHeight,
+  setKnittingPattern,
+  setKnittingRowDensity,
+  setKnittingStitchDensity,
+  setKnittingWidth,
 } from "../../store/knittingSlice";
 
 const KnittingTools = () => {
@@ -20,33 +23,27 @@ const KnittingTools = () => {
     const width = +(e.currentTarget.elements[3] as HTMLInputElement).value;
     const pxPerCm = +(e.currentTarget.elements[4] as HTMLInputElement).value;
 
-    const ny = countFromDensity(knittingState.rowDensity, knittingState.height);
-    const nx = countFromDensity(
-      knittingState.stitchDensity,
-      knittingState.width
-    );
+    const nx = knittingState.pattern[0].length;
+    const ny = knittingState.pattern.length;
 
-    const newNy = Math.max(countFromDensity(rowDensity, height), nx);
-    const newNx = Math.max(countFromDensity(stitchDensity, width), ny);
+    const newNy = Math.max(countFromDensity(rowDensity, height), ny);
+    const newNx = Math.max(countFromDensity(stitchDensity, width), nx);
 
     const newPattern = Array.from(Array(newNy), (_) =>
       Array(newNx).fill(false)
     );
 
-    for (let x = 0; x < nx; x++) {
-      for (let y = 0; y < ny; y++) {
-        newPattern[x][y] = knittingState.pattern[x][y];
+    for (let y = 0; y < ny; y++) {
+      for (let x = 0; x < nx; x++) {
+        newPattern[y][x] = knittingState.pattern[y][x];
       }
     }
 
-    const newKnittingState: KnittingState = {
-      stitchDensity: stitchDensity,
-      rowDensity: rowDensity,
-      height: height,
-      width: width,
-      pattern: newPattern,
-    };
-    dispatch(setKnitting(newKnittingState));
+    dispatch(setKnittingHeight(height));
+    dispatch(setKnittingWidth(width));
+    dispatch(setKnittingRowDensity(rowDensity));
+    dispatch(setKnittingStitchDensity(stitchDensity));
+    dispatch(setKnittingPattern(newPattern));
     dispatch(setDimsCm({ widthInCm: width, heightInCm: height }));
     dispatch(setPxPerCm(pxPerCm));
   };

@@ -35,16 +35,35 @@ export const KnittingSlice = createSlice({
   initialState,
   // note that Immer manages scheduled state updates
   reducers: {
-    setKnitting: (state, action: PayloadAction<KnittingState>) => {
-      state.height = action.payload.height;
-      state.width = action.payload.width;
-      state.rowDensity = action.payload.rowDensity;
-      state.stitchDensity = action.payload.stitchDensity;
-      state.pattern = action.payload.pattern;
+    setKnittingHeight: (state, action: PayloadAction<number>) => {
+      state.height = action.payload;
+    },
+    setKnittingWidth: (state, action: PayloadAction<number>) => {
+      state.width = action.payload;
+    },
+    setKnittingRowDensity: (state, action: PayloadAction<number>) => {
+      state.rowDensity = action.payload;
+    },
+    setKnittingStitchDensity: (state, action: PayloadAction<number>) => {
+      state.stitchDensity = action.payload;
+    },
+    setKnittingPattern: (state, action: PayloadAction<boolean[][]>) => {
+      state.pattern = action.payload;
+    },
+    togglePattern: (state, action: PayloadAction<[number, number]>) => {
+      const [xi, yi] = action.payload;
+      state.pattern[yi][xi] = !state.pattern[yi][xi];
     },
   },
 });
 
-export const { setKnitting } = KnittingSlice.actions;
+export const {
+  setKnittingHeight,
+  setKnittingWidth,
+  setKnittingRowDensity,
+  setKnittingStitchDensity,
+  setKnittingPattern,
+  togglePattern,
+} = KnittingSlice.actions;
 
 export default KnittingSlice.reducer;

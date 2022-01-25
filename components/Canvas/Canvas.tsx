@@ -1,6 +1,10 @@
 import { MouseEventHandler, useEffect, useRef } from "react";
-import { useAppSelector } from "../../store/hooks";
-import { DENSITY_REF } from "../../store/knittingSlice";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import {
+  countFromDensity,
+  DENSITY_REF,
+  togglePattern,
+} from "../../store/knittingSlice";
 
 const posToIndex = (
   x: number,
@@ -26,6 +30,8 @@ const Canvas: React.FC = () => {
   const canvasState = useAppSelector((state) => state.canvas);
   const knittingState = useAppSelector((state) => state.knitting);
 
+  const dispatch = useAppDispatch();
+
   const canvasOnClickHandler: MouseEventHandler<HTMLCanvasElement> = (
     e: React.MouseEvent
   ) => {
@@ -48,31 +54,22 @@ const Canvas: React.FC = () => {
       deltaHeight,
       deltaWidth
     );
-
-    console.log(canvasState);
-    console.log(knittingState);
-    console.log(xi, yi);
-    const canvas = canvasRef.current!;
-    const ctx = canvas.getContext("2d")!;
-
-    ctx.beginPath();
-    ctx.fillStyle = "black";
-    ctx.fillRect(xi * deltaWidth, yi * deltaHeight, deltaWidth, deltaHeight);
+    dispatch(togglePattern([xi, yi]));
   };
 
   useEffect(() => {
-    const stitchWidthInPx = deltaInPxFromDensityInCm(
+    const deltaWidth = deltaInPxFromDensityInCm(
       knittingState.stitchDensity,
       canvasState.pxPerCm
     );
-    const rowHeightInPx = deltaInPxFromDensityInCm(
+    const deltaHeight = deltaInPxFromDensityInCm(
       knittingState.rowDensity,
       canvasState.pxPerCm
     );
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
 
-    ctx.lineWidth = Math.ceil(Math.min(stitchWidthInPx, rowHeightInPx) / 10);
+    ctx.lineWidth = Math.ceil(Math.min(deltaWidth, deltaHeight) / 10);
 
     ctx.strokeStyle = "black";
     ctx.fillStyle = "white";
@@ -89,15 +86,35 @@ const Canvas: React.FC = () => {
     while (x <= canvasState.width) {
       ctx.moveTo(x, 0);
       ctx.lineTo(x, canvas.offsetHeight);
-      x += stitchWidthInPx;
+      x += deltaWidth;
     }
     let y = 0;
     while (y <= canvasState.height) {
       ctx.moveTo(0, y);
       ctx.lineTo(canvas.offsetWidth, y);
-      y += rowHeightInPx;
+      y += deltaHeight;
     }
     ctx.stroke();
+
+    const nx = countFromDensity(
+      knittingState.stitchDensity,
+      knittingState.width
+    );
+    const ny = countFromDensity(knittingState.rowDensity, knittingState.height);
+
+    ctx.beginPath();
+    ctx.fillStyle = "black";
+    for (let x = 0; x < nx; x++) {
+      for (let y = 0; y < ny; y++) {
+        if (knittingState.pattern[y][x])
+          ctx.fillRect(
+            x * deltaWidth,
+            y * deltaHeight,
+            deltaWidth,
+            deltaHeight
+          );
+      }
+    }
   }, [canvasState, knittingState]);
 
   return (

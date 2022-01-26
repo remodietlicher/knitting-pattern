@@ -51,8 +51,8 @@ const Canvas: React.FC = () => {
     );
 
     const [xi, yi] = posToIndex(
-      e.clientX + canvas.scrollLeft - canvas.offsetLeft,
-      e.clientY + canvas.scrollTop - canvas.offsetTop,
+      e.clientX - e.currentTarget.getBoundingClientRect().left,
+      e.clientY - e.currentTarget.getBoundingClientRect().top,
       canvasState.height,
       canvasState.width,
       deltaHeight,

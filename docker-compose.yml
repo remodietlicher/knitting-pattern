@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  knitting-pattern:
+    build: .
+    ports:
+      - 3937:3000
+    networks:
+      - reverse-proxy
+
+networks:
+  reverse-proxy:
+    name: reverse-proxy
+    external: true

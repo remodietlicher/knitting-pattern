@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { setDimsCm, setPxPerCm } from "../../store/canvasSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
@@ -8,26 +9,31 @@ import {
   setKnittingStitchDensity,
   setKnittingWidth,
 } from "../../store/knittingSlice";
+import NumberInput from "../FormElements/NumberInput";
+import SubmitButton from "../FormElements/SubmitButton";
 
 const KnittingTools = () => {
   const knittingState = useAppSelector((state) => state.knitting);
   const canvasState = useAppSelector((state) => state.canvas);
   const dispatch = useAppDispatch();
 
+  const [stitchDensityForm, setStitchDensityForm] = useState(
+    knittingState.stitchDensity
+  );
+  const [rowDensityForm, setRowDensityForm] = useState(
+    knittingState.rowDensity
+  );
+  const [heightForm, setHeightForm] = useState(knittingState.height);
+  const [widthForm, setWidthForm] = useState(knittingState.width);
+  const [pxPerCmForm, setPxPerCmForm] = useState(canvasState.pxPerCm);
+
   const knittingSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const stitchDensity = +(e.currentTarget.elements[0] as HTMLInputElement)
-      .value;
-    const rowDensity = +(e.currentTarget.elements[1] as HTMLInputElement).value;
-    const height = +(e.currentTarget.elements[2] as HTMLInputElement).value;
-    const width = +(e.currentTarget.elements[3] as HTMLInputElement).value;
-    const pxPerCm = +(e.currentTarget.elements[4] as HTMLInputElement).value;
-
     const nx = knittingState.pattern[0].length;
     const ny = knittingState.pattern.length;
 
-    const newNy = Math.max(countFromDensity(rowDensity, height), ny);
-    const newNx = Math.max(countFromDensity(stitchDensity, width), nx);
+    const newNy = Math.max(countFromDensity(rowDensityForm, heightForm), ny);
+    const newNx = Math.max(countFromDensity(stitchDensityForm, widthForm), nx);
 
     const newPattern = Array.from(Array(newNy), (_) =>
       Array(newNx).fill(false)
@@ -39,41 +45,53 @@ const KnittingTools = () => {
       }
     }
 
-    dispatch(setKnittingHeight(height));
-    dispatch(setKnittingWidth(width));
-    dispatch(setKnittingRowDensity(rowDensity));
-    dispatch(setKnittingStitchDensity(stitchDensity));
+    dispatch(setKnittingHeight(heightForm));
+    dispatch(setKnittingWidth(widthForm));
+    dispatch(setKnittingRowDensity(rowDensityForm));
+    dispatch(setKnittingStitchDensity(stitchDensityForm));
     dispatch(setKnittingPattern(newPattern));
-    dispatch(setDimsCm({ widthInCm: width, heightInCm: height }));
-    dispatch(setPxPerCm(pxPerCm));
+    dispatch(setDimsCm({ widthInCm: widthForm, heightInCm: heightForm }));
+    dispatch(setPxPerCm(pxPerCmForm));
   };
 
   return (
     <form onSubmit={knittingSubmitHandler}>
-      <input
-        type="text"
-        id="stitch-density"
+      <NumberInput
+        text="stitches per 10 cm"
         defaultValue={knittingState.stitchDensity}
+        changeHandler={(e: React.ChangeEvent<HTMLInputElement>) => {
+          setStitchDensityForm(+e.currentTarget.value);
+        }}
       />
-      <label htmlFor="stitch-density">stitches per 10 cm</label>
-      <input
-        type="text"
-        id="row-density"
+      <NumberInput
+        text="rows per 10 cm"
         defaultValue={knittingState.rowDensity}
+        changeHandler={(e: React.ChangeEvent<HTMLInputElement>) => {
+          setRowDensityForm(+e.currentTarget.value);
+        }}
       />
-      <label htmlFor="row-density">rows per 10 cm</label>
-      <input type="text" id="height" defaultValue={knittingState.height} />
-      <label htmlFor="height">final height in cm</label>
-      <input type="text" id="width" defaultValue={knittingState.width} />
-      <label htmlFor="width">final width in cm</label>
-      <input type="text" id="px-per-cm" defaultValue={canvasState.pxPerCm} />
-      <label htmlFor="px-per-cm">Pixel density (px/cm)</label>
-      <button
-        className="bg-orange-400 hover:bg-transparent border border-orange-400 text-white hover:text-orange-400 rounded py-2 px-4"
-        type="submit"
-      >
-        Submit
-      </button>
+      <NumberInput
+        text="final height in cm"
+        defaultValue={knittingState.height}
+        changeHandler={(e: React.ChangeEvent<HTMLInputElement>) => {
+          setHeightForm(+e.currentTarget.value);
+        }}
+      />
+      <NumberInput
+        text="final width in cm"
+        defaultValue={knittingState.width}
+        changeHandler={(e: React.ChangeEvent<HTMLInputElement>) => {
+          setWidthForm(+e.currentTarget.value);
+        }}
+      />
+      <NumberInput
+        text="Pixel density (px/cm)"
+        defaultValue={canvasState.pxPerCm}
+        changeHandler={(e: React.ChangeEvent<HTMLInputElement>) => {
+          setPxPerCmForm(+e.currentTarget.value);
+        }}
+      />
+      <SubmitButton>Submit</SubmitButton>
     </form>
   );
 };
